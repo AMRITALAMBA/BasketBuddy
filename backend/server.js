@@ -89,9 +89,44 @@ app.post('/api/products/add', async (req, res) => {
 });
 
 
+app.delete('/api/products/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const product = await Product.findByIdAndDelete(id); // Delete product by ID
+        
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+        
+        res.status(200).json({ message: 'Product deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
 
+// Route for updating a product by ID
+app.put('/api/products/:id', async (req, res) => {
+    const { name, type, description, price, image } = req.body;
+    const productId = req.params.id;
 
+    try {
+        // Find the product by ID and update it
+        const updatedProduct = await Product.findByIdAndUpdate(
+            productId,
+            { name, type, description, price, image },
+            { new: true } // Returns the updated document
+        );
+        
+        if (!updatedProduct) {
+            return res.status(404).json({ message: 'Product not found.' });
+        }
 
+        res.json(updatedProduct); // Respond with the updated product
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to update product.' });
+    }
+});
 
 // Define API endpoint for fetching all products
 app.get('/api/products', async (req, res) => {
@@ -194,6 +229,30 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
                 select: 'name price' // Select fields to include
             });
             console.log(orders)
+        res.json(orders);
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).json({ error: 'Failed to fetch orders. Please try again.' });
+    }
+});
+
+// Get All Orders (No Authentication)
+app.get('/api/admin/order', async (req, res) => {
+    try {
+        // Fetch all orders from the database
+        const orders = await Order.find()
+            .populate({
+                path: 'items.product',
+                select: 'name price image'  // Select the necessary fields to display
+            })
+            .exec(); // Execute the query to retrieve all orders
+
+        // If no orders are found, return a 404 error
+        if (orders.length === 0) {
+            return res.status(404).json({ message: 'No orders found.' });
+        }
+
+        // Return the orders as a response
         res.json(orders);
     } catch (error) {
         console.error('Error fetching orders:', error);

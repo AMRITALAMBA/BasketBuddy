@@ -10,6 +10,7 @@ import HomePage from './components/HomePage';
 import OrderHistory from './components/OrderHistory';
 import AdminPage from './components/AdminPage';
 import AdminLogin from './components/AdminLogin';
+import AdminOrder from './components/AdminOrder';
 const App = () => {
     return (
         <Router>
@@ -20,6 +21,7 @@ const App = () => {
                     <Route path="/orders" component={<OrderHistory/>} />
                     <Route path='/admin/page' element={<AdminPage/>}></Route>
                     <Route path="/admin/login" element={<AdminLogin />} />
+                    <Route path="/admin/order" element={<AdminOrder />} />
                 </Routes>
             </CustomItemContext>
         </Router>
